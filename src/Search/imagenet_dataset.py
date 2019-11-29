@@ -1,15 +1,14 @@
 import os
+
+import PIL
+import cv2
 import numpy as np
 import torch
-import torchvision
-import torchvision.transforms as transforms
-import torchvision.datasets as datasets
 import torch.utils.data as data
-import cv2
-import tarfile
-import PIL
+import torchvision.datasets as datasets
+import torchvision.transforms as transforms
 from PIL import Image
-import tqdm
+
 
 class OpencvResize(object):
 
@@ -18,16 +17,17 @@ class OpencvResize(object):
 
     def __call__(self, img):
         assert isinstance(img, PIL.Image.Image)
-        img = np.asarray(img) # (H,W,3) RGB
-        img = img[:,:, ::-1] # 2 BGR
+        img = np.asarray(img)  # (H,W,3) RGB
+        img = img[:, :, ::-1]  # 2 BGR
         img = np.ascontiguousarray(img)
         H, W, _ = img.shape
-        target_size = (int(self.size/H * W + 0.5), self.size) if H < W else (self.size, int(self.size/W * H + 0.5))
+        target_size = (int(self.size / H * W + 0.5), self.size) if H < W else (self.size, int(self.size / W * H + 0.5))
         img = cv2.resize(img, target_size, interpolation=cv2.INTER_LINEAR)
-        img = img[:,:, ::-1] # 2 RGB
+        img = img[:, :, ::-1]  # 2 RGB
         img = np.ascontiguousarray(img)
         img = Image.fromarray(img)
         return img
+
 
 class ToBGRTensor(object):
 
@@ -35,11 +35,12 @@ class ToBGRTensor(object):
         assert isinstance(img, (np.ndarray, PIL.Image.Image))
         if isinstance(img, PIL.Image.Image):
             img = np.asarray(img)
-        img = img[:,:, ::-1] # 2 BGR
-        img = np.transpose(img, [2, 0, 1]) # 2 (3, H, W)
+        img = img[:, :, ::-1]  # 2 BGR
+        img = np.transpose(img, [2, 0, 1])  # 2 (3, H, W)
         img = np.ascontiguousarray(img)
         img = torch.from_numpy(img).float()
         return img
+
 
 class DataIterator(object):
 
@@ -54,6 +55,7 @@ class DataIterator(object):
             self.iterator = enumerate(self.dataloader)
             _, data = next(self.iterator)
         return data[0], data[1]
+
 
 train_dir = 'data/train'
 val_dir = 'data/val'
@@ -88,6 +90,7 @@ def get_train_dataprovider(batch_size, *, num_workers, use_gpu):
     train_dataprovider = DataIterator(train_loader)
     return train_dataprovider
 
+
 def get_val_dataprovider(batch_size, *, num_workers, use_gpu):
     val_loader = torch.utils.data.DataLoader(
         valid_dataset,
@@ -103,10 +106,8 @@ def main():
     torch.cuda.manual_seed_all(0)
     np.random.seed(0)
 
-
     print(len(train_dataset))
     print(train_dataset[np.random.randint(len(train_dataset))])
-
 
     print(len(valid_dataset))
     print(valid_dataset[np.random.randint(len(valid_dataset))])
@@ -126,6 +127,7 @@ def main():
 
     from IPython import embed
     embed()
+
 
 if __name__ == '__main__':
     main()

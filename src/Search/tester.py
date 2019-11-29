@@ -1,9 +1,9 @@
 import torch
 
-from imagenet_dataset import get_train_dataprovider, get_val_dataprovider
+# from imagenet_dataset import get_train_dataprovider, get_val_dataprovider
 import tqdm
 
-assert torch.cuda.is_available()
+# assert torch.cuda.is_available()
 
 train_dataprovider, val_dataprovider = None, None
 

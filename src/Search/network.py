@@ -116,6 +116,7 @@ class ShuffleNetV2_OneShot(nn.Module):
                 if m.bias is not None:
                     nn.init.constant_(m.bias, 0)
 
+
 if __name__ == "__main__":
     # architecture = [0, 0, 3, 1, 1, 1, 0, 0, 2, 0, 2, 1, 1, 0, 2, 0, 2, 1, 3, 2]
     # scale_list = [0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6]

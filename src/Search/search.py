@@ -1,38 +1,25 @@
+import argparse
+import functools
 import os
+import random
 import sys
 import time
-import glob
+
 import numpy as np
-import pickle
 import torch
-import logging
-import argparse
-import torch
-import random
 
+from flops import get_cand_flops
+from network import ShuffleNetV2_OneShot
+from tester import get_cand_err
 
+print = functools.partial(print, flush=True)
 torch.manual_seed(0)
 torch.cuda.manual_seed_all(0)
 np.random.seed(0)
 random.seed(0)
 torch.backends.cudnn.deterministic = True
-
-from network import ShuffleNetV2_OneShot
-
-from tester import get_cand_err
-from flops import get_cand_flops
-
-from torch.autograd import Variable
-import collections
-import sys
 sys.setrecursionlimit(10000)
-import argparse
-
-import functools
-print = functools.partial(print, flush=True)
-
-choice = lambda x: x[np.random.randint(len(x))] if isinstance(
-    x, tuple) else choice(tuple(x))
+choice = lambda x: x[np.random.randint(len(x))] if isinstance(x, tuple) else choice(tuple(x))
 
 
 class EvolutionSearcher(object):
@@ -50,8 +37,7 @@ class EvolutionSearcher(object):
 
         self.model = ShuffleNetV2_OneShot()
         self.model = torch.nn.DataParallel(self.model).cuda()
-        supernet_state_dict = torch.load(
-            '../Supernet/models/checkpoint-latest.pth.tar')['state_dict']
+        supernet_state_dict = torch.load('../Supernet/models/checkpoint-latest.pth.tar')['state_dict']
         self.model.load_state_dict(supernet_state_dict)
 
         self.log_dir = args.log_dir
@@ -181,6 +167,7 @@ class EvolutionSearcher(object):
             p1 = choice(self.keep_top_k[k])
             p2 = choice(self.keep_top_k[k])
             return tuple(choice([i, j]) for i, j in zip(p1, p2))
+
         cand_iter = self.stack_random_cand(random_func)
         while len(res) < crossover_num and max_iters > 0:
             max_iters -= 1
@@ -194,10 +181,13 @@ class EvolutionSearcher(object):
         return res
 
     def search(self):
-        print('population_num = {} select_num = {} mutation_num = {} crossover_num = {} random_num = {} max_epochs = {}'.format(
-            self.population_num, self.select_num, self.mutation_num, self.crossover_num, self.population_num - self.mutation_num - self.crossover_num, self.max_epochs))
+        print('population_num = {} select_num = {} mutation_num = {} crossover_num = {} '
+              'random_num = {} max_epochs = {}'.format(
+            self.population_num, self.select_num,
+            self.mutation_num, self.crossover_num,
+            self.population_num - self.mutation_num - self.crossover_num, self.max_epochs))
 
-        self.load_checkpoint()
+        # self.load_checkpoint()
 
         self.get_random(self.population_num)
 
@@ -259,12 +249,14 @@ def main():
     print('total searching time = {:.2f} hours'.format(
         (time.time() - t) / 3600))
 
+
 if __name__ == '__main__':
     try:
         main()
         os._exit(0)
     except:
         import traceback
+
         traceback.print_exc()
         time.sleep(1)
         os._exit(1)
