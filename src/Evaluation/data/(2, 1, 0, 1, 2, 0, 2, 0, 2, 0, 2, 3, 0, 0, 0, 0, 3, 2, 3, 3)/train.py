@@ -116,7 +116,7 @@ def main():
     )
     train_loader = torch.utils.data.DataLoader(
         train_dataset, batch_size=args.batch_size, shuffle=True,
-        num_workers=1, pin_memory=use_gpu)
+        num_workers=24, pin_memory=use_gpu)
     train_dataprovider = DataIterator(train_loader)
 
     assert os.path.exists(args.val_dir)
@@ -127,7 +127,7 @@ def main():
             ToBGRTensor(),
         ])),
         batch_size=200, shuffle=False,
-        num_workers=1, pin_memory=use_gpu
+        num_workers=24, pin_memory=use_gpu
     )
     val_dataprovider = DataIterator(val_loader)
     print('load data successfully')
